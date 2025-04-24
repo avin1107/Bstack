@@ -1,4 +1,4 @@
-      - name: Upload APK to BrowserStack
+- name: Upload APK to BrowserStack
         id: upload_apk
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
