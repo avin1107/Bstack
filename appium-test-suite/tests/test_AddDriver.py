@@ -24,7 +24,7 @@ capabilities = {
     "automationName": "uiautomator2",
     "deviceName": "Google Pixel 9",
     "platformVersion": "15.0",
-    "app": "bs://eec0cd3cddb778fdff4eef48833d3e1bfed375f0",
+     #"app": "bs://eec0cd3cddb778fdff4eef48833d3e1bfed375f0",
     "appActivity": "com.jarus.insurance.android.agentapp.activities.spashscreen.SplashScreen",
     "language": "en",
     "locale": "US",
