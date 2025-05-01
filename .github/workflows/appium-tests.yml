@@ -1,4 +1,4 @@
-name: Run Appium Tests on BrowserStack
+name: Run Appium Tests on BrowserStack 
 
 on:
   push:
