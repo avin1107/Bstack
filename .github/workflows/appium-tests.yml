@@ -22,7 +22,7 @@ jobs:
 
           RESPONSE=$(curl -s -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
             -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
-            -F "file=@apk/gsedla_uat_1.0.0_nov_12.apk")
+            -F "file=@apk/app-xin_prd-release.aab")
 
           echo "Response: $RESPONSE"
 
