@@ -1,23 +1,36 @@
-- name: Upload APK to BrowserStack
-  id: upload_apk
-  env:
-    BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-    BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-  run: |
-    echo "Uploading APK to BrowserStack..."
-    
-    RESPONSE=$(curl -s -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
-      -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
-      -F "file=@apk/gsedla_uat_1.0.0_nov_12.apk")
+      - name: Upload APK to BrowserStack
+        id: upload_apk
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: |
+          set -e  # Exit immediately if a command fails
 
-    echo "Response: $RESPONSE"
+          echo "Uploading APK to BrowserStack..."
 
-    APP_URL=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('app_url', ''))")
+          # Upload the APK and save response + status code separately
+          HTTP_RESPONSE=$(mktemp)
+          HTTP_STATUS=$(curl -s -w "%{http_code}" -o "$HTTP_RESPONSE" \
+            -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
+            -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+            -F "file=@apk/gsedla_uat_1.0.0_nov_12.apk")
 
-    if [ -z "$APP_URL" ]; then
-      echo "APK upload failed or returned no app_url"
-      exit 1
-    fi
+          echo "HTTP Status Code: $HTTP_STATUS"
 
-    echo "Upload successful. APP_URL=$APP_URL"
-    echo "APP_URL=$APP_URL" >> $GITHUB_ENV
+          RESPONSE_BODY=$(cat "$HTTP_RESPONSE")
+          echo "Response Body: $RESPONSE_BODY"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "❌ APK upload failed with status code $HTTP_STATUS"
+            exit 1
+          fi
+
+          APP_URL=$(echo "$RESPONSE_BODY" | python3 -c "import sys, json; print(json.load(sys.stdin).get('app_url', ''))")
+
+          if [ -z "$APP_URL" ]; then
+            echo "❌ Failed to extract app_url from response."
+            exit 1
+          fi
+
+          echo "✅ Upload successful. APP_URL=$APP_URL"
+          echo "APP_URL=$APP_URL" >> $GITHUB_ENV
