@@ -1,17 +1,3 @@
-name: Run Appium Tests on BrowserStack  
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  run-tests:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Upload APK to BrowserStack
         id: upload_apk
         env:
@@ -19,45 +5,31 @@ jobs:
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         run: |
           echo "Uploading APK to BrowserStack..."
-          RESPONSE=$(curl -s -w "%{http_code}" -o response.json -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
-            -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
-            -F "file=@apk/gsedla_uat_1.0.0_nov_12.apk")
 
-          HTTP_STATUS=$(tail -c 3 <<< "$RESPONSE")
+          # Upload and capture both response body and status code
+          RESPONSE=$(curl -s -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
+            -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+            -F "file=@apk/gsedla_uat_1.0.0_nov_12.apk" -w "\n%{http_code}")
+
+          # Separate response body and status code
+          HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+
           echo "HTTP Status: $HTTP_STATUS"
 
           if [ "$HTTP_STATUS" -ne 200 ]; then
             echo "APK upload failed with status code $HTTP_STATUS"
-            cat response.json
+            echo "$HTTP_BODY"
             exit 1
           fi
 
-          APP_URL=$(cat response.json | python3 -c "import sys, json; print(json.load(sys.stdin).get('app_url', ''))")
+          APP_URL=$(echo "$HTTP_BODY" | python3 -c "import sys, json; print(json.load(sys.stdin).get('app_url', ''))")
 
           if [ -z "$APP_URL" ]; then
             echo "APK upload failed or returned no app_url"
-            cat response.json
+            echo "$HTTP_BODY"
             exit 1
           fi
 
           echo "Upload successful. APP_URL=$APP_URL"
           echo "APP_URL=$APP_URL" >> $GITHUB_ENV
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install Appium-Python-Client pytest
-
-      - name: Run Appium Tests on BrowserStack
-        env:
-          APP_URL: ${{ env.APP_URL }}
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: |
-          echo "Running tests with APP_URL=$APP_URL"
-          pytest appium-test-suite/tests/
