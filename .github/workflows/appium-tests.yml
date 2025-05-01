@@ -1,4 +1,18 @@
-      name: Upload APK to BrowserStack
+name: Run Appium Tests on BrowserStack
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  upload-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Upload APK to BrowserStack
         id: upload_apk
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
