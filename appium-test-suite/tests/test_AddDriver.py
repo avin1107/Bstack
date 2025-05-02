@@ -64,9 +64,11 @@ class TestAppium(unittest.TestCase):
         username_field.send_keys("trainingfile")
         
         # Enter Password
-        password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.XPATH, '//android.widget.EditText[@resource-id="password"]')))
+        #password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.XPATH, '//android.widget.EditText[@resource-id="password"]')))
+        #password_field.send_keys("Prime1234")
+
+        password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.CLASS_NAME, "android.widget.EditText")))
         password_field.send_keys("Prime1234")
-        
         # Click Continue
         self.safe_click((AppiumBy.XPATH, '//android.widget.Button[@text="Continue"]'))
         
