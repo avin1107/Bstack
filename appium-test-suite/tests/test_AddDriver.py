@@ -8,7 +8,7 @@ from selenium.common.exceptions import StaleElementReferenceException, TimeoutEx
 import unittest
 import time 
 
-# Ensure BrowserStack credentials are set
+# Ensure BrowserStack credentials are set 
 BROWSERSTACK_USERNAME = os.getenv("BROWSERSTACK_USERNAME")
 BROWSERSTACK_ACCESS_KEY = os.getenv("BROWSERSTACK_ACCESS_KEY")
 
