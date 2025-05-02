@@ -67,7 +67,7 @@ class TestAppium(unittest.TestCase):
         #password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.XPATH, '//android.widget.EditText[@resource-id="password"]')))
         #password_field.send_keys("Prime1234")
 
-        password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.ID, "com.eibdev.pnc.insurance:id/password")))
+        password_field = self.wait.until(EC.presence_of_element_located((AppiumBy.ID, "password")))
         password_field.send_keys("Prime1234")
         # Click Continue
         self.safe_click((AppiumBy.XPATH, '//android.widget.Button[@text="Continue"]'))
